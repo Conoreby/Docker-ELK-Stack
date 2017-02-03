@@ -13,4 +13,4 @@ For example:
 
 `docker deploy -c docker-compose-filter.yml elk_stack`
 
-`docker service create --network elk_stack_logging --log-driver=syslog --log-opt syslog-address=tcp://localhost:5000 --log-opt tag="ElasticSearch/{{.Name}}" elasticsearch`
+`docker service create --name es --network elk_stack_logging --log-driver=syslog --log-opt syslog-address=tcp://localhost:5000 --log-opt tag="ElasticSearch/{{.Name}}" elasticsearch`
