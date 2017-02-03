@@ -6,7 +6,7 @@ services:
             - logging
     logstash:
         image: logstash
-        command: logstash -e 'input { tcp { port => 5000 type => syslog } udp { port => 5000 type => syslog } } filter { if [type] == "syslog" { grok { match => { "message" => "%{SYSLOG5424PRI:pri}%{SYSLOGTIMESTAMP:syslog_ts} %{HOSTNAME:app_name}/%{HOSTNAME:containername}"} } } } output { elasticsearch { hosts => "elasticsearch:9200" }}'
+        command: logstash -e 'input { tcp { port => 5000 type => syslog } udp { port => 5000 type => syslog } } filter { if [type] == "syslog" { grok { match => { "message" => "%{SYSLOG5424PRI:pri}%{SYSLOGTIMESTAMP:syslog_ts} %{HOSTNAME:app_name}/%{HOSTNAME:containername}%{GREEDYDATA:log_message}"} } } } output { elasticsearch { hosts => "elasticsearch:9200" }}'
         ports:
             - "5000:5000"
         networks:
