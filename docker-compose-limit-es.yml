@@ -1,0 +1,32 @@
+version: '3'
+services:
+    elasticsearch:
+        image: elasticsearch
+        networks:
+            - logging
+        environment:
+          ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+    logstash:
+        image: logstash
+        command: logstash -e 'input { tcp { port => 5000 type => syslog } udp { port => 5000 type => syslog } } filter { if [type] == "syslog" { grok { match => { "message" => "%{SYSLOG5424PRI:pri}%{SYSLOGTIMESTAMP:syslog_ts} %{HOSTNAME:app_name}/%{HOSTNAME:containername}%{GREEDYDATA:log_message}"} } } } output { elasticsearch { hosts => "elasticsearch:9200" }}'
+        ports:
+            - "5000:5000"
+        networks:
+            - logging
+        depends_on:
+            - elasticsearch
+    kibana:
+        image: kibana
+        ports:
+            - "5601:5601"
+        environment:
+            ELASTICSEARCH_URL: http://elasticsearch:9200
+        networks:
+            - logging
+        depends_on:
+            - elasticsearch
+
+networks:
+    logging:
+        driver: overlay
+
