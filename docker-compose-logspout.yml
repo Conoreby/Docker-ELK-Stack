@@ -1,0 +1,38 @@
+version: '3'
+services:
+    elasticsearch:
+        image: elasticsearch
+        networks:
+            - logging
+    logstash:
+        image: logstash
+        command: logstash -e 'input { tcp { port => 5000 type => syslog } udp { port => 5000 type => syslog } } output { elasticsearch { hosts => "elasticsearch:9200" }}'
+        networks:
+            - logging
+        depends_on:
+            - elasticsearch
+    logspout:
+      image: gliderlabs/logspout
+      networks:
+          - logging
+      volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+      command: syslog://logstash:5000
+      deploy:
+          mode: global
+      depends_on:
+          - logstash
+    kibana:
+        image: kibana
+        ports:
+            - "5601:5601"
+        environment:
+            ELASTICSEARCH_URL: http://elasticsearch:9200
+        networks:
+            - logging
+        depends_on:
+            - elasticsearch
+
+networks:
+    logging:
+        driver: overlay
