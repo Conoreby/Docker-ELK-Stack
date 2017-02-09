@@ -1,13 +1,13 @@
 version: '3'
 services:
     elasticsearch:
-        image: elasticsearch
+        image: elasticsearch:5.2.0
         networks:
             - logging
         environment:
             LOGSPOUT: ignore
     logstash:
-        image: logstash
+        image: logstash:5.2.0
         command: logstash -e 'input { tcp { port => 5000 codec => json } udp { port => 5000 codec => json } } output { elasticsearch { hosts => "elasticsearch:9200" }}'
         networks:
             - logging
@@ -16,7 +16,7 @@ services:
         environment:
             LOGSPOUT: ignore
     logspout:
-        image: conoreby/logspout-logstash
+        image: conoreby/logstash-logspout
         networks:
             - logging
         volumes:
@@ -29,7 +29,7 @@ services:
             LOGSPOUT: ignore
             ROUTE_URIS: logstash+tcp://logstash:5000
     kibana:
-        image: kibana
+        image: kibana:5.2.0
         ports:
             - "5601:5601"
         environment:
