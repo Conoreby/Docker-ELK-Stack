@@ -8,7 +8,7 @@ services:
             LOGSPOUT: ignore
     logstash:
         image: logstash
-        command: logstash -e 'input { tcp { port => 5000 type => syslog } udp { port => 5000 type => syslog } } output { elasticsearch { hosts => "elasticsearch:9200" }}'
+        command: logstash -e 'input { tcp { port => 5000 codec => json } udp { port => 5000 codec => json } } output { elasticsearch { hosts => "elasticsearch:9200" }}'
         networks:
             - logging
         depends_on:
@@ -16,18 +16,18 @@ services:
         environment:
             LOGSPOUT: ignore
     logspout:
-        image: gliderlabs/logspout
+        image: bekt/logspout-logstash
         networks:
             - logging
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
-        command: syslog://logstash:5000
         deploy:
             mode: global
         depends_on:
             - logstash
         environment:
             LOGSPOUT: ignore
+            ROUTE_URIS: logstash+tcp://logstash:5000
     kibana:
         image: kibana
         ports:
