@@ -16,7 +16,7 @@ services:
         environment:
             LOGSPOUT: ignore
     logspout:
-        image: bekt/logspout-logstash
+        image: conoreby/logspout-logstash
         networks:
             - logging
         volumes:
